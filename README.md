@@ -1,6 +1,6 @@
 # Daejeon Travel Lounge(DTL) 홈페이지
 <h2>Skills</h2>
-· 개발도구 : Eclipse
+· 개발도구 : Eclipse <br/>
 · 사용언어 :  Java / Spring / JSP / HTML / CSS/ JS / SQL Developer / MyBatis / Bootstrap
 <h2>Features</h2>
 · 회원가입 / 로그인 기능 구현 <br/>
