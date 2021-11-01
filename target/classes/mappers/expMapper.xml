@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weaver.mappers.expMapper">
+	<!-- 체험리뷰 작성 -->
+	<insert id="registReply">
+		insert into tbl_expReply (expNum, userId, repNum, repCon)
+		values (#{expNum}, #{userId}, tbl_expReply_seq.nextval, #{repCon})
+	</insert>
+	
+	<!-- 체험리뷰 리스트 -->
+	<select id = "replyList" resultType = "com.weaver.dto.ExpReplyListDto">
+		select
+			e.expNum, e.userId, e.repNum, e.repCon, e.repDate, m.userName
+		from 
+			tbl_expReply e
+			inner join tbl_member m
+				on e.userId = m.userId
+			where expNum = #{expNum}
+	</select>
+	
+	<!-- 체험리뷰 삭제 -->
+	<delete id="deleteReply">
+		delete
+			tbl_expReply
+		where 
+			repNum = #{repNum}
+				and userId = #{userId}
+	</delete>
+	
+	<!-- 아이디 체크 -->
+	<select id="replyUserIdCheck" resultType = "String">
+		select 
+			userId
+		from 
+			tbl_expReply
+		where 
+			repNum = #{repNum}
+	</select>
+	
+	<!-- 체험리뷰 수정 -->
+	<update id="modifyReply">
+	update tbl_expReply
+	     set
+	        repCon = #{repCon}
+	     where 
+	     	repNum = #{repNum}
+	        	and userId = #{userId}
+	</update>
+</mapper>

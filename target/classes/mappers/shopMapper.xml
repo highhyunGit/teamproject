@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weaver.mappers.shopMapper">
+	<!-- 카테고리별 상품 리스트  1차 분류-->
+	<select id="list_1" resultType="com.weaver.dto.GoodsViewDto">
+		SELECT  g.gdsNum, g.gdsName, g.cateCode, c.cateCodeRef, c.cateName, gdsPrice, gdsStock, gdsDes, gdsImg, gdsDate, g.gdsImg, g.gdsThumbImg
+        FROM tbl_goods g inner join goods_category c on g.cateCode = c.cateCode           
+        where g.cateCode = #{cateCode} or c.cateCodeRef = #{cateCodeRef}
+	</select>
+	
+	<!-- 카테고리별 상품 리스트  2차 분류, 우리는 2차분류까지는 없으나 나중에 추가할 수도 있으므로 작성해둠-->
+	<select id="list_2" resultType="com.weaver.dto.GoodsViewDto">
+		SELECT  g.gdsNum, g.gdsName, g.cateCode, c.cateCodeRef, c.cateName, gdsPrice, gdsStock, gdsDes, gdsImg, gdsDate, g.gdsImg, g.gdsThumbImg
+        FROM tbl_goods g inner join goods_category c on g.cateCode = c.cateCode           
+        where g.cateCode = #{cateCode} 
+    </select>	
+    
+    <!-- 상품 댓글 작성 -->
+    <insert id="registReply">
+    	INSERT INTO tbl_reply(gdsNum, userId, repNum, repCon)
+    	values(#{gdsNum}, #{userId}, tbl_reply_seq.nextval, #{repCon})
+    </insert>
+    
+    <!-- 상품 댓글 리스트 -->
+	<select id="replyList" resultType="com.weaver.dto.ReplyListDto">
+		SELECT r.gdsNum, r.userId, r.repNum, r.repCon, r.repDate, m.userName
+		FROM tbl_reply r inner join tbl_member m on r.userId = m.userId
+	    where gdsNum = #{gdsNum}
+	</select>  	
+
+	<!-- 상품 댓글 삭제 -->
+	<delete id="deleteReply">
+		DELETE tbl_reply 
+		where repNum = #{repNum}
+		and userId = #{userId}
+	</delete>
+
+	<!-- 아이디 체크 -->
+	<select id="replyUserIdCheck" resultType="String">
+		SELECT userId
+		FROM tbl_reply
+    	where repNum = #{repNum}
+	</select>
+	
+	<!-- 상품 댓글 수정 -->
+	<update id="modifyReply">
+		UPDATE tbl_reply SET repCon = #{repCon}
+	    where repNum = #{repNum}
+	    and userId = #{userId}
+	</update>
+	
+	<!-- 카트 담기 -->
+	<insert id="addCart">
+ 		INSERT INTO tbl_cart (cartNum, userId, gdsNum, cartStock)
+    	values (tbl_cart_seq.nextval, #{userId}, #{gdsNum}, #{cartStock})
+	</insert>
+	
+	<!-- 카트 리스트 -->
+	<select id="cartList" resultType="com.weaver.dto.CartListDto">
+ 		SELECT
+     	row_number() over(order by c.cartNum desc) as num,
+     	c.cartNum, c.userId, c.gdsNum, c.cartStock, c.addDate,
+     	g.gdsName, g.gdsPrice, g.gdsThumbImg
+ 		FROM tbl_cart c
+     	inner join tbl_goods g on c.gdsNum = g.gdsNum   
+     	where c.userId = #{userId}
+	</select>
+	
+	<!-- 카트 삭제 -->
+	<delete id="deleteCart">
+ 		DELETE tbl_cart
+     	WHERE cartNum = #{cartNum}
+        and userId = #{userId}
+	</delete>	
+	
+	<!-- 주문 정보 -->
+	<insert id="orderInfo">
+		INSERT INTO tbl_order(orderId, userId, orderRec, userAddr1, userAddr2, userAddr3, orderPhone, amount)
+     	values(#{orderId}, #{userId}, #{orderRec}, #{userAddr1}, #{userAddr2}, #{userAddr3}, #{orderPhone}, #{amount})
+	</insert>
+   
+	<!-- 주문 상세 정보 --> 
+	<insert id="orderInfo_Details">
+ 		INSERT INTO tbl_order_details(orderDetailsNum, orderId, gdsNum, cartStock)
+    	SELECT tbl_order_details_seq.nextval, #{orderId}, gdsNum, cartStock
+    	FROM tbl_cart   
+	</insert> 
+	
+	<!-- 카트 비우기(주문완료되면 장바구니에서 지워야함) -->
+	<delete id="cartAllDelete">
+ 		DELETE tbl_cart where userId = #{userId}
+	</delete>
+	
+	<!-- 유저 주문 목록 -->
+	<select id="orderList" resultType="com.weaver.dto.OrderDto">
+		 SELECT orderId, userId, orderRec, userAddr1, userAddr2, userAddr3, orderPhone, amount, orderDate, delivery
+		 FROM tbl_order
+		 WHERE userId = #{userId}
+	</select>	
+	
+	<!-- 특정 주문 목록 -->
+	<select id="orderView" resultType="com.weaver.dto.OrderListDto">
+		SELECT o.orderId, o.userId, o.orderRec, o.userAddr1, o.userAddr2, o.userAddr3, o.orderPhone, o.amount, o.orderDate, o.delivery, d.orderDetailsNum, d.gdsNum, d.cartStock, g.gdsName, g.gdsThumbImg, g.gdsPrice
+		FROM tbl_order o
+		inner join tbl_order_details d on o.orderId = d.orderId inner join tbl_goods g on d.gdsNum = g.gdsNum
+		WHERE o.userId = #{userId} and o.orderId = #{orderId}
+	</select>
+		
+	<!-- 주소검색 -->
+	<select id="searchAddr" resultType = "com.weaver.dto.AddrDto">
+		SELECT *
+		FROM TBL_ADDRESS
+		WHERE ADDR
+			LIKE '%'||#{addr}||'%'
+	</select>
+</mapper>

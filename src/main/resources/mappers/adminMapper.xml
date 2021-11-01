@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weaver.mappers.adminMapper">
+	<!-- 카테고리 호출 -->
+	<select id="category" resultType="com.weaver.dto.CategoryDto">
+		SELECT level, cateName, cateCode, cateCodeRef
+		FROM goods_category
+ 		start with cateCodeRef is null connect by prior cateCode = cateCodeRef
+	</select>
+	<!-- 상품 등록 -->
+	<insert id="register">
+		INSERT INTO TBL_GOODS(gdsNum, gdsName, cateCode, gdsPrice, gdsStock, gdsDes, gdsImg, gdsThumbImg)
+		VALUES(tbl_goods_seq.nextval, #{gdsName}, #{cateCode}, #{gdsPrice}, #{gdsStock}, #{gdsDes}, #{gdsImg}, #{gdsThumbImg})
+	</insert>
+	<!-- 상품 목록 
+	<select id="goodsList" resultType="com.weaver.dto.GoodsDto">
+		SELECT gdsNum, gdsName, cateCode, gdsPrice, gdsStock, gdsDes, gdsImg, gdsDate
+		FROM tbl_goods
+		order by gdsNum desc
+	</select> 
+	-->
+	<!-- 상품 목록 -->
+	<select id="goodsList" resultType="com.weaver.dto.GoodsViewDto">
+		SELECT  g.gdsNum, g.gdsName, g.cateCode, c.cateCodeRef, c.cateName, gdsPrice, gdsStock, gdsDes, gdsImg, gdsDate, g.gdsImg, g.gdsThumbImg
+        FROM tbl_goods g inner join goods_category c on g.cateCode = c.cateCode
+	</select>	
+	<!-- 상품 조회
+	<select id="goodsView" resultType="com.weaver.dto.GoodsDto">
+		SELECT gdsNum, gdsName, cateCode, gdsPrice, gdsStock, gdsDes, gdsImg, gdsDate
+		FROM tbl_goods
+		where gdsNum = #{gdsNum}
+	</select>	
+	-->
+	<!-- 상품조회 + 카테고리 조인 -->
+	<select id="goodsView" resultType="com.weaver.dto.GoodsViewDto">
+		SELECT g.gdsNum, g.gdsName, g.cateCode, c.cateCodeRef, c.cateName, gdsPrice, gdsStock, gdsDes, gdsImg, gdsDate, g.gdsImg, g.gdsThumbImg
+		FROM tbl_goods g inner join goods_category c on g.cateCode = c.cateCode
+		where g.gdsNum = #{gdsNum}
+	</select>
+	<!-- 상품 수정 -->
+	<update id="goodsModify">
+		UPDATE tbl_goods SET gdsName = #{gdsName}, cateCode = #{cateCode}, gdsPrice = #{gdsPrice}, gdsStock = #{gdsStock}, gdsDes = #{gdsDes}, gdsImg = #{gdsImg}, gdsThumbImg = #{gdsThumbImg}
+		where gdsNum = ${gdsNum}
+	</update>
+	<!-- 상품 삭제 -->
+	<delete id="goodsDelete">
+		DELETE tbl_goods where gdsNum = #{gdsNum}
+	</delete>
+	<!-- 모든 유저의 주문 목록 -->
+	<select id="orderList" resultType="com.weaver.dto.OrderDto">
+ 		SELECT orderId, userId, orderRec, userAddr1, userAddr2, userAddr3, orderPhone, amount, orderDate, delivery
+ 		FROM tbl_order
+	</select>
+
+	<!-- 특정 주문 목록 -->
+	<select id="orderView" resultType="com.weaver.dto.OrderListDto">
+		SELECT o.orderId, o.userId, o.orderRec, o.userAddr1, o.userAddr2, o.userAddr3, o.orderPhone, o.amount, o.orderDate, o.delivery, d.orderDetailsNum, d.gdsNum, d.cartStock, g.gdsName, g.gdsThumbImg, g.gdsPrice
+		FROM tbl_order o inner join tbl_order_details d on o.orderId = d.orderId inner join tbl_goods g on d.gdsNum = g.gdsNum
+		WHERE o.orderId = #{orderId}
+	</select>
+	<!-- 배송 상태 -->
+	<update id="delivery">
+		UPDATE tbl_order SET delivery = #{delivery} WHERE orderId = #{orderId}
+	</update>	
+	<!-- 상품 수량 조절 -->
+	<update id="changeStock">
+ 		UPDATE tbl_goods SET gdsStock = gdsStock - #{gdsStock} WHERE gdsNum = #{gdsNum}
+	</update>	
+	<!--  모든 소감(댓글) -->
+	<select id="allReply" resultType="com.weaver.dto.ReplyListDto">
+		SELECT r.gdsNum, r.userId, r.repNum, r.repCon, r.repDate, m.userName
+		FROM tbl_reply r inner join tbl_member m on r.userId = m.userId
+	</select>
+
+	<!-- 소감(댓글) 지우기 -->
+	<delete id="deleteReply">
+ 		DELETE tbl_reply WHERE repNum = #{repNum}
+	</delete>
+	
+	<!-- 체험 등록 -->
+	<insert id = "expRegister">
+		INSERT INTO tbl_exp (
+	        expNum,
+	        expName,
+	        expPrice,
+	        expDes,
+	        expImg,
+	        expThumbImg
+    	) VALUES (
+	        tbl_exp_seq.NEXTVAL,
+	        #{expName},
+	        #{expPrice},
+	        #{expDes},
+	        #{expImg},
+	        #{expThumbImg}
+       	)
+	</insert>
+	
+	<!-- 체험 목록 -->
+	<select id = "expList" resultType = "com.weaver.dto.ExpDto">
+		SELECT
+		    expNum,
+		    expName,
+		    expPrice,
+		    expDes,
+		    expImg,
+		    regDate,
+		    expThumbImg
+		FROM
+	   	 tbl_exp
+		ORDER BY
+	    	expNum DESC
+	</select>
+	
+	<!-- 체험 조회 -->
+	<select id = "expView" resultType = "com.weaver.dto.ExpDto">
+		SELECT
+		    expNum,
+		    expName,
+		    expPrice,
+		    expDes,
+		    expImg,
+		    regDate,
+		    expThumbImg
+		FROM
+		    tbl_exp
+		WHERE
+		    expNum = #{expNum}
+	</select>
+	
+	<!-- 체험수정 -->
+	<update id = "expModify">
+		UPDATE tbl_exp
+		SET
+		    expName = #{expName},
+		    expPrice = #{expPrice},
+		    expDes = #{expDes},
+		    expImg = #{expImg},
+		    expThumbImg = #{expThumbImg}
+		WHERE
+		    expNum = #{expNum}	
+	</update>
+	
+	<!-- 체험삭제 -->
+	<delete id = "expDelete">
+		DELETE tbl_exp
+		WHERE
+		    expNum = #{expNum}
+	</delete>
+		
+	<!--  모든 체험리뷰 리스트 -->
+	<select id="allExpReply" resultType="com.weaver.dto.ExpReplyListDto">
+		SELECT e.expNum, e.userId, e.repNum, e.repCon, e.repDate, m.userName
+		FROM tbl_expReply e inner join tbl_member m on e.userId = m.userId
+	</select>
+
+	<!-- 체험리뷰 지우기 -->
+	<delete id="deleteExpReply">
+ 		DELETE tbl_expReply WHERE repNum = #{repNum}
+	</delete>	
+	
+</mapper>

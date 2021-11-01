@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weaver.mappers.memberMapper">
+
+	<!-- 회원 가입 -->
+	<insert id = "signup">
+		INSERT INTO tbl_member (userId, userPass, userName, userPhone) 
+		VALUES(#{userId}, #{userPass}, #{userName}, #{userPhone} )
+	</insert>
+	
+	<!--  로그인 -->
+	<select id = "signin" resultType = "com.weaver.dto.MemberDto">
+		SELECT userId, userPass, userName, userPhone, regDate, verify
+		FROM tbl_member WHERE userId = #{userId}
+	</select>
+	
+</mapper>
