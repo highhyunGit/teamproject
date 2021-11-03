@@ -19,3 +19,8 @@
 <img src="https://user-images.githubusercontent.com/89969398/140003998-5e4aafa1-97d1-4aac-8115-13758155c7f6.gif">
 <h3>관리자의 주문자의 주문정보 확인 </h3>
 <img src="https://user-images.githubusercontent.com/89969398/140004009-837b5feb-d964-42af-942b-01ec5aac98be.gif">
+
+<h2>Team : WEAVER</h2>
+· 팀장 : 최한결(github.com/hangy3olchoi) <br/>
+· 팀원 : 이소율(github.com/soyurr) <br/>
+· 팀원 : 최 현(github.com/highhyunGit)
